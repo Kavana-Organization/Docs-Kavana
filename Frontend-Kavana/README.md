@@ -31,6 +31,13 @@ NEXT_PUBLIC_TURNSTILE_SITE_KEY=your_cloudflare_turnstile_site_key
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## UI/UX & Wireframes
+
+- [Spesifikasi Wireframe Lo-Fi (Paper Sketch)](./WIREFRAME_LOFI_KAVANA.md) - Panduan dan diagram layout ASCII low-fidelity untuk Landing Page, Auth, dan Dashboard semua role.
+- [Visual Wireframe Interaktif](./kavana_lofi_wireframes.html) - Simulator sketsa kertas tulisan tangan interaktif (bisa dibuka langsung di browser).
+- [Audit UI/UX Lengkap](./UI_UX_AUDIT.md)
+- [Audit UI/UX Ringkas](./UI_UX_AUDIT_RINGKAS.md)
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

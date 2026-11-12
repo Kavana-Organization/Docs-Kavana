@@ -1,15 +1,17 @@
 # Bimbingan Online API
 
-Backend API untuk Sistem Bimbingan Online D4 Teknik Informatika Polindra.
+Backend API untuk Sistem Bimbingan Online D4 Teknik Informatika ULBI.
 
 ## 🚀 Fitur
 
 ### Auth & User Management
+
 - ✅ Register mahasiswa (D4 TI saja)
 - ✅ Login multi-role (mahasiswa, dosen, kaprodi, koordinator, penguji, admin)
 - ✅ Admin hardcoded via environment variable
 
 ### Mahasiswa
+
 - ✅ Pilih track (proyek1-3, internship1-2)
 - ✅ Create/join kelompok (max 2 anggota untuk proyek)
 - ✅ Submit proposal + usulan dosen pembimbing
@@ -18,11 +20,13 @@ Backend API untuk Sistem Bimbingan Online D4 Teknik Informatika Polindra.
 - ✅ Upload foto profil
 
 ### Dosen & Kaprodi
+
 - ✅ Lihat mahasiswa bimbingan (termasuk sebagai pembimbing 2)
 - ✅ Approve/reject bimbingan dan laporan
 - ✅ Dashboard statistik
 
 ### Koordinator
+
 - ✅ Validasi proposal
 - ✅ Assign dosen pembimbing
 - ✅ Jadwalkan sidang
@@ -31,7 +35,7 @@ Backend API untuk Sistem Bimbingan Online D4 Teknik Informatika Polindra.
 ## 🛠️ Tech Stack
 
 | Komponen | Teknologi |
-|----------|-----------|
+| ---------- | ----------- |
 | Runtime | Node.js |
 | Framework | Express.js 5.x (ES Modules) |
 | Database | MySQL2 |
@@ -104,7 +108,7 @@ Swagger UI tersedia di: `http://localhost:3000/docs`
 ## 👥 Roles
 
 | Role | Deskripsi |
-|------|-----------|
+| ------ | ----------- |
 | mahasiswa | Mahasiswa D4 TI |
 | dosen | Dosen pembimbing |
 | kaprodi | Kepala Program Studi |

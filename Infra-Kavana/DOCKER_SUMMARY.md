@@ -98,7 +98,7 @@
 ### Production
 ```bash
 cd Infrastructure
-docker compose up --build
+docker compose --env-file .env.docker up --build
 docker compose logs -f
 docker compose down
 ```
@@ -154,7 +154,7 @@ make health         # Check health endpoints
 - [ ] Set strong JWT_SECRET & BETTER_AUTH_SECRET
 - [ ] Configure email (SMTP) credentials
 - [ ] Configure Turnstile site key
-- [ ] Test `docker compose up`
+- [ ] Test `docker compose --env-file .env.docker up`
 - [ ] Verify health endpoints
 - [ ] Check logs for errors
 - [ ] Enable auto-restart: `docker update --restart unless-stopped`
@@ -172,7 +172,7 @@ docker compose -f docker-compose.dev.yml up
 
 ### Local Production-like
 ```bash
-docker compose up
+docker compose --env-file .env.docker up
 ```
 
 ### Docker Registry
@@ -237,7 +237,7 @@ docker compose logs db
 
 # Reset database
 docker compose down -v
-docker compose up db
+docker compose --env-file .env.docker up db
 ```
 
 ### Out of disk space

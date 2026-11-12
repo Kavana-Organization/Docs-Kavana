@@ -22,7 +22,7 @@
 cd Infrastructure
 
 # Build and start all services
-docker compose up --build
+docker compose --env-file .env.docker up --build
 
 # First time only - wait for DB to initialize (~30s)
 # Then access:
@@ -48,16 +48,16 @@ docker compose -f docker-compose.dev.yml up --build
 
 ```bash
 # Backend only
-docker compose up backend
+docker compose --env-file .env.docker up backend
 
 # Frontend only
-docker compose up frontend
+docker compose --env-file .env.docker up frontend
 
 # Database only
-docker compose up db
+docker compose --env-file .env.docker up db
 
 # Redis only
-docker compose up redis
+docker compose --env-file .env.docker up redis
 ```
 
 ## 📁 File Structure
@@ -101,30 +101,30 @@ Database is auto-initialized from `../Backend-Kavana/bimbingan_online.sql` on fi
 To reset:
 ```bash
 docker compose down -v          # Remove volumes
-docker compose up db            # Reinitialize
+docker compose --env-file .env.docker up db            # Reinitialize
 ```
 
 ## 🐳 Docker Images
 
 ### Backend (`kavana-backend`)
-- Base: `node:22-alpine`
+- Base: `node:24-alpine`
 - Entry: `node local.js`
 - Ports: 3000
 - Health: `/health` endpoint
 
 ### Frontend (`kavana-frontend`)
-- Base: `node:22-alpine`
+- Base: `node:24-alpine`
 - Entry: `npm start`
 - Ports: 3001
 - Health: `/` endpoint
 
 ### Database (`kavana-mysql`)
-- Image: `mysql:8.0`
+- Image: `mysql:8.4`
 - Ports: 3306
 - Volume: `mysql-data`
 
 ### Cache (`kavana-redis`)
-- Image: `redis:7-alpine`
+- Image: `redis:8-alpine`
 - Ports: 6379
 - Volume: `redis-data`
 
@@ -214,7 +214,7 @@ For production on servers:
 
 ```bash
 # Use production compose
-docker compose up -d
+docker compose --env-file .env.docker up -d
 
 # Enable auto-restart
 docker update --restart unless-stopped kavana-backend

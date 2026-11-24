@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Access Control Matrix Kavana - Visual Table</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+  body { background: #0f172a; padding: 30px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  .card { background: #1e293b; border-radius: 16px; border: 1px solid #334155; padding: 28px; width: 100%; max-width: 1150px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+  .header { margin-bottom: 20px; text-align: center; }
+  .header h2 { color: #f8fafc; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .header p { color: #94a3b8; font-size: 13px; margin-top: 5px; }
+  .badges { display: flex; justify-content: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+  .badge-item { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 9999px; }
+  .badge-mhs { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
+  .badge-dosen { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.4); }
+  .badge-koord { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.4); }
+  .badge-kaprodi { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); }
+  
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 18px; border-radius: 12px; overflow: hidden; border: 1px solid #334155; font-size: 12.5px; }
+  th { padding: 12px 10px; text-align: center; font-weight: 700; color: #f1f5f9; border-bottom: 2px solid #334155; letter-spacing: 0.3px; }
+  th.res-col { text-align: left; width: 33%; background: #1e293b; color: #e2e8f0; }
+  th.col-mhs { background: #1e3a8a; border-left: 2px solid #3b82f6; border-right: 1px solid #1e3a8a; color: #bfdbfe; }
+  th.col-dosen { background: #14532d; color: #bbf7d0; }
+  th.col-penguji { background: #312e81; color: #c7d2fe; }
+  th.col-koord { background: #713f12; border-left: 2px solid #eab308; color: #fef08a; }
+  th.col-kaprodi { background: #581c87; border-left: 1px solid #a855f7; border-right: 2px solid #a855f7; color: #f3e8ff; }
+  th.col-admin { background: #334155; color: #cbd5e1; }
+  
+  td { padding: 10px 10px; border-bottom: 1px solid #334155; text-align: center; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background-color: rgba(255, 255, 255, 0.04); }
+  td.res-name { text-align: left; font-weight: 600; color: #cbd5e1; background: #1e293b; border-right: 1px solid #334155; font-size: 12px; }
+  
+  /* Highlight Column Shading (Pembeda Latar Belakang) */
+  td.cell-mhs { background: rgba(30, 58, 138, 0.28); border-left: 2px solid #3b82f6; border-right: 1px solid rgba(59, 130, 246, 0.25); }
+  td.cell-dosen { background: rgba(20, 83, 45, 0.15); }
+  td.cell-penguji { background: rgba(49, 46, 129, 0.15); }
+  td.cell-koord { background: rgba(113, 63, 18, 0.32); border-left: 2px solid #eab308; }
+  td.cell-kaprodi { background: rgba(88, 28, 135, 0.32); border-left: 1px solid rgba(168, 85, 247, 0.25); border-right: 2px solid #a855f7; }
+  td.cell-admin { background: rgba(51, 65, 85, 0.15); }
+
+  /* Permission Pills */
+  .pill { display: inline-block; padding: 3px 7px; border-radius: 5px; font-weight: 800; font-size: 11px; letter-spacing: 0.5px; }
+  .p-cr { background: #1d4ed8; color: #eff6ff; border: 1px solid #60a5fa; }
+  .p-r { background: #1e293b; color: #94a3b8; border: 1px solid #475569; }
+  .p-ru { background: #15803d; color: #f0fdf4; border: 1px solid #4ade80; }
+  .p-cru { background: #854d0e; color: #fefce8; border: 1px solid #facc15; }
+  .p-crud { background: #6b21a8; color: #faf5ff; border: 1px solid #c084fc; font-weight: 900; }
+  .p-deny { color: #f87171; font-weight: 700; opacity: 0.85; font-size: 11px; }
+  .tag-own { display: block; font-size: 9.5px; color: #93c5fd; margin-top: 2px; font-weight: 600; }
+  .tag-scope { display: block; font-size: 9.5px; color: #fde047; margin-top: 2px; font-weight: 600; }
+
+  .footer-legend { margin-top: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #334155; padding-top: 14px; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <h2>ACCESS CONTROL MATRIX (ACM) — KAVANA</h2>
+    <p>Visual Kontras Hak Akses: <b>Mahasiswa</b> (Least Privilege & Data Ownership) vs <b>Koordinator & Kaprodi</b> (Otoritas Validasi)</p>
+    <div class="badges">
+      <div class="badge-item badge-mhs">🟦 Kolom Mahasiswa (Latar Biru Tua - Terbatas)</div>
+      <div class="badge-item badge-dosen">🟩 Dosen Pembimbing (Latar Hijau)</div>
+      <div class="badge-item badge-koord">🟨 Kolom Koordinator (Latar Kuning Emas - Otoritas Track)</div>
+      <div class="badge-item badge-kaprodi">🟪 Kolom Kaprodi (Latar Ungu - Otoritas Tertinggi)</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="res-col">Komponen UI / Resource Fitur</th>
+        <th class="col-mhs">Mahasiswa</th>
+        <th class="col-dosen">Dosen Pembimbing</th>
+        <th class="col-penguji">Penguji</th>
+        <th class="col-koord">Koordinator</th>
+        <th class="col-kaprodi">Kaprodi</th>
+        <th class="col-admin">Admin</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="res-name">Logbook Bimbingan (+ Catat Sesi)</td>
+        <td class="cell-mhs"><span class="pill p-cr">C, R</span><span class="tag-own">Milik Sendiri</span></td>
+        <td class="cell-dosen"><span class="pill p-r">R</span></td>
+        <td class="cell-penguji"><span class="p-deny">—</span></td>
+        <td class="cell-koord"><span class="pill p-r">R</span></td>
+        <td class="cell-kaprodi"><span class="pill p-r">R</span></td>
+        <td class="cell-admin"><span class="p-deny">—</span></td>
+      </tr>
+      <tr>
+        <td class="res-name">Tombol Setujui / Tolak Bimbingan (ACC)</td>
+        <td class="cell-mhs"><span class="p-deny">✕ DITOLAK</span></td>
+        <td class="cell-dosen"><span class="pill p-ru">R, U</span></td>
+        <td class="cell-penguji"><span class="p-deny">—</span></td>
+        <td class="cell-koord"><span class="pill p-ru">R, U*</span></td>
+        <td class="cell-kaprodi"><span class="pill p-cru">C, R, U</span></td>
+        <td class="cell-admin"><span class="p-deny">—</span></td>
+      </tr>
+      <tr>
+        <td class="res-name">Upload Proposal Proyek (Drive Link)</td>
+        <td class="cell-mhs"><span class="pill p-cr">C, R</span><span class="tag-own">Kelompok</span></td>
+        <td class="cell-dosen"><span class="p-deny">—</span></td>
+        <td class="cell-penguji"><span class="p-deny">—</span></td>
+        <td class="cell-koord"><span class="pill p-ru">R, U</span><span class="tag-scope">Validasi Track</span></td>
+        <td class="cell-kaprodi"><span class="pill p-ru">R, U</span></td>
+        <td class="cell-admin"><span class="p-deny">—</span></td>
+      </tr>
+      <tr>
+        <td class="res-name">Menu "Assign Pembimbing" (Plotting)</td>
+        <td class="cell-mhs"><span class="p-deny">✕ DITOLAK</span></td>
+        <td class="cell-dosen"><span class="p-deny">—</span></td>
+        <td class="cell-penguji"><span class="p-deny">—</span></td>
+        <td class="cell-koord"><span class="pill p-cru">C, R, U</span><span class="tag-scope">Manual Plotting</span></td>
+        <td class="cell-kaprodi"><span class="pill p-cru">C, R, U</span></td>
+        <td class="cell-admin"><span class="p-deny">—</span></td>
+      </tr>
+      <tr>
+        <td class="res-name">Upload Laporan Akhir & Luaran</td>
+        <td class="cell-mhs"><span class="pill p-cr">C, R</span><span class="tag-own">Min. 8 Sesi ACC</span></td>
+        <td class="cell-dosen"><span class="pill p-ru">R, U</span><span class="tag-scope">Approval Laporan</span></td>
+        <td class="cell-penguji"><span class="pill p-r">R</span></td>
+        <td class="cell-koord"><span class="pill p-r">R</span></td>
+        <td class="cell-kaprodi"><span class="pill p-r">R</span></td>
+        <td class="cell-admin"><span class="p-deny">—</span></td>
+      </tr>
+      <tr>
+        <td class="res-name">Penjadwalan Sidang (Anti-Bentrok)</td>
+        <td class="cell-mhs"><span class="pill p-r">R</span><span class="tag-own">Lihat Jadwal</span></td>
+        <td class="cell-dosen"><span class="pill p-r">R</span></td>
+        <td class="cell-penguji"><span class="pill p-r">R</span></td>
+        <td class="cell-koord"><span class="pill p-cru">C, R, U</span><span class="tag-scope">Jadwalkan Sidang</span></td>
+        <td class="cell-kaprodi"><span class="pill p-cru">C, R, U</span></td>
+        <td class="cell-admin"><span class="p-deny">—</span></td>
+      </tr>
+      <tr>
+        <td class="res-name">Nilai Sidang & Catatan Revisi</td>
+        <td class="cell-mhs"><span class="pill p-r">R</span><span class="tag-own">Lihat Nilai</span></td>
+        <td class="cell-dosen"><span class="pill p-ru">R, U</span><span class="tag-scope">Bobot 40%</span></td>
+        <td class="cell-penguji"><span class="pill p-ru">R, U</span><span class="tag-scope">Bobot 60%</span></td>
+        <td class="cell-koord"><span class="pill p-ru">R, U</span></td>
+        <td class="cell-kaprodi"><span class="pill p-cru">C, R, U</span></td>
+        <td class="cell-admin"><span class="p-deny">—</span></td>
+      </tr>
+      <tr>
+        <td class="res-name">Penugasan Koordinator (Multi-Checkbox Sem)</td>
+        <td class="cell-mhs"><span class="p-deny">—</span></td>
+        <td class="cell-dosen"><span class="p-deny">—</span></td>
+        <td class="cell-penguji"><span class="p-deny">—</span></td>
+        <td class="cell-koord"><span class="p-deny">—</span></td>
+        <td class="cell-kaprodi"><span class="pill p-crud">C, R, U, D</span><span class="tag-scope">Eksklusif Kaprodi</span></td>
+        <td class="cell-admin"><span class="p-deny">—</span></td>
+      </tr>
+      <tr>
+        <td class="res-name">Kelola Akun Pengguna & Reset Password</td>
+        <td class="cell-mhs"><span class="p-deny">—</span></td>
+        <td class="cell-dosen"><span class="p-deny">—</span></td>
+        <td class="cell-penguji"><span class="p-deny">—</span></td>
+        <td class="cell-koord"><span class="p-deny">—</span></td>
+        <td class="cell-kaprodi"><span class="p-deny">—</span></td>
+        <td class="cell-admin"><span class="pill p-crud">R, U, D</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer-legend">
+    <div>📌 <b>Prinsip Append-Only:</b> Tidak ada hak Hapus (Delete) pada data akademik (Proposal, Bimbingan, Sidang) demi rekonsiliasi audit.</div>
+    <div>🔒 <b>Enforcement Ganda:</b> Tombol yang hilang di UI dijaga mutlak oleh <code>middleware/role.js</code> (HTTP 403 Forbidden).</div>
+  </div>
+</div>
+
+</body>
+</html>

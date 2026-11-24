@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bukti Pengujian Keamanan API RBAC & Anti-IDOR - Kavana Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --primary: #3b82f6;
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.12);
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.12);
+      --code-bg: #0d1117;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 32px 24px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .badge-system {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .timestamp {
+      color: var(--muted);
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 850px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .summary-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .summary-val {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .test-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .test-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .test-card.passed-positive {
+      border-left: 5px solid var(--success);
+    }
+
+    .test-card.passed-negative {
+      border-left: 5px solid #ec4899;
+    }
+
+    .card-header {
+      padding: 18px 24px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tc-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .tc-badge.positive {
+      background: var(--success-bg);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .tc-badge.negative {
+      background: rgba(236, 72, 153, 0.15);
+      color: #f472b6;
+      border: 1px solid rgba(236, 72, 153, 0.3);
+    }
+
+    .tc-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .status-201, .status-200 {
+      background: var(--success-bg);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-403 {
+      background: var(--danger-bg);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 18px;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meta-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .meta-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .api-endpoint-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #0d1117;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+
+    .method {
+      font-weight: 700;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .method.post { background: #065f46; color: #34d399; }
+    .method.patch { background: #5b21b6; color: #c084fc; }
+    .method.get { background: #1e40af; color: #60a5fa; }
+
+    .code-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 850px) {
+      .code-grid { grid-template-columns: 1fr; }
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .code-header {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    pre {
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      overflow-x: auto;
+    }
+
+    .verdict-banner {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13.5px;
+      font-weight: 500;
+    }
+
+    .verdict-success {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: #6ee7b7;
+    }
+
+    .verdict-security {
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      color: #93c5fd;
+    }
+
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 20px;
+      border-top: 1px solid var(--card-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-top">
+        <span class="badge-system">🛡️ Kavana Security Testing Suite</span>
+        <span class="timestamp">Target: Kavana Backend API Engine | Execution: Automated</span>
+      </div>
+      <h1>Bukti Hasil Pengujian Keamanan API (RBAC & Anti-IDOR)</h1>
+      <p class="subtitle">
+        Pengujian fungsional dan keamanan pada endpoint bimbingan sistem Kavana menggunakan kredensial aktual Mahasiswa (Bagas Agung - 714240042 & Nadi Azzada - 714240001) serta Dosen Pembimbing (Rolly Maulana Awangga).
+      </p>
+    </header>
+
+    <!-- Summary Metrics -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-title">Total Test Cases</div>
+        <div class="summary-val" style="color: #60a5fa;">4 / 4</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Test Positif (Fungsional)</div>
+        <div class="summary-val" style="color: #34d399;">2 Passed (100%)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Test Negatif (Keamanan/RBAC)</div>
+        <div class="summary-val" style="color: #f472b6;">2 Passed (100% Blocked)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Overall Security Status</div>
+        <div class="summary-val" style="color: #10b981;">SECURE & COMPLIANT</div>
+      </div>
+    </div>
+
+    <!-- Test List -->
+    <div class="test-grid">
+
+      <!-- TC01 -->
+      <div class="test-card passed-positive">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="tc-badge positive">TC01 - POSITIF</span>
+            <span class="tc-title">Mahasiswa Mengajukan Bimbingan Baru</span>
+          </div>
+          <span class="status-badge status-201">● 201 CREATED</span>
+        </div>
+        <div class="card-body">
+          <div class="meta-row">
+            <div class="meta-item">
+              <span class="meta-label">Aktor / Kredensial</span>
+              <span class="meta-value">Mahasiswa (714240042 - Bagas Agung Wiyono)</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Metode & Endpoint</span>
+              <div class="api-endpoint-box">
+                <span class="method post">POST</span>
+                <span>/api/mahasiswa/bimbingan</span>
+              </div>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Hak Akses</span>
+              <span class="meta-value">ROLE: mahasiswa (Track Proyek 3)</span>
+            </div>
+          </div>
+
+          <div class="code-grid">
+            <div class="code-block">
+              <div class="code-header">
+                <span>Request Payload (JSON)</span>
+                <span>Content-Type: application/json</span>
+              </div>
+              <pre>{
+  "dosen_id": "2",
+  "tanggal": "2026-11-23",
+  "minggu_ke": 1,
+  "topik": "Konsultasi Perancangan Keamanan RBAC Kavana",
+  "catatan": "Membahas pembagian role permission matrix dan middleware guard."
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <span>Response Body (HTTP 201)</span>
+                <span>Status: Success</span>
+              </div>
+              <pre>{
+  "message": "Bimbingan berhasil dibuat",
+  "id": "BIM-2024-0001",
+  "ids": [
+    "BIM-2024-0001"
+  ],
+  "enrollment_id": null
+}</pre>
+            </div>
+          </div>
+
+          <div class="verdict-banner verdict-success">
+            ✅ <strong>Verifikasi Berhasil:</strong> Mahasiswa yang terdaftar sah berhasil mencatat log bimbingan kepada dosen pembimbing yang ditugaskan. Sistem mengembalikan ID terdaftar <code>BIM-2024-0001</code>.
+          </div>
+        </div>
+      </div>
+
+      <!-- TC02 -->
+      <div class="test-card passed-positive">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="tc-badge positive">TC02 - POSITIF</span>
+            <span class="tc-title">Dosen Pembimbing Menyetujui Bimbingan</span>
+          </div>
+          <span class="status-badge status-200">● 200 OK</span>
+        </div>
+        <div class="card-body">
+          <div class="meta-row">
+            <div class="meta-item">
+              <span class="meta-label">Aktor / Kredensial</span>
+              <span class="meta-value">Dosen Pembimbing (awangga@ulbi.ac.id - Rolly M. Awangga)</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Metode & Endpoint</span>
+              <div class="api-endpoint-box">
+                <span class="method patch">PATCH</span>
+                <span>/api/dosen/bimbingan/BIM-2024-0001/status</span>
+              </div>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Hak Akses</span>
+              <span class="meta-value">ROLE: dosen (Dosen Pembimbing Sah)</span>
+            </div>
+          </div>
+
+          <div class="code-grid">
+            <div class="code-block">
+              <div class="code-header">
+                <span>Request Payload (JSON)</span>
+                <span>Content-Type: application/json</span>
+              </div>
+              <pre>{
+  "status": "approved",
+  "catatan": "Catatan disetujui. Struktur RBAC sudah sesuai spesifikasi PRD."
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <span>Response Body (HTTP 200)</span>
+                <span>Status: Success</span>
+              </div>
+              <pre>{
+  "message": "Bimbingan approved"
+}</pre>
+            </div>
+          </div>
+
+          <div class="verdict-banner verdict-success">
+            ✅ <strong>Verifikasi Berhasil:</strong> Dosen pembimbing yang berwenang berhasil mengubah status bimbingan dari pending menjadi <code>approved</code> serta menambahkan paraf review.
+          </div>
+        </div>
+      </div>
+
+      <!-- TC03 -->
+      <div class="test-card passed-negative">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="tc-badge negative">TC03 - NEGATIF (RBAC GUARD)</span>
+            <span class="tc-title">Percobaan Bypass UI / Privilege Escalation oleh Mahasiswa</span>
+          </div>
+          <span class="status-badge status-403">● 403 FORBIDDEN</span>
+        </div>
+        <div class="card-body">
+          <div class="meta-row">
+            <div class="meta-item">
+              <span class="meta-label">Aktor Penyerang</span>
+              <span class="meta-value">Mahasiswa (714240042 - Mencoba approve bimbingannya sendiri)</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Metode & Endpoint Sasaran</span>
+              <div class="api-endpoint-box">
+                <span class="method patch">PATCH</span>
+                <span>/api/dosen/bimbingan/BIM-2024-0001/status</span>
+              </div>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Vulnerability Targeted</span>
+              <span class="meta-value" style="color: #f472b6;">Broken Object Level / Function Authorization (BOLA/BFLA)</span>
+            </div>
+          </div>
+
+          <div class="code-grid">
+            <div class="code-block">
+              <div class="code-header">
+                <span>Request Payload (Manipulated API Call)</span>
+                <span>Header: Authorization: Bearer &lt;Token Mahasiswa&gt;</span>
+              </div>
+              <pre>{
+  "status": "approved"
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <span>Response Body (HTTP 403)</span>
+                <span>Status: Blocked by Middleware</span>
+              </div>
+              <pre>{
+  "message": "Forbidden"
+}</pre>
+            </div>
+          </div>
+
+          <div class="verdict-banner verdict-security">
+            🛡️ <strong>Pertahanan RBAC Terbukti Efektif:</strong> Meskipun mahasiswa menyembunyikan atau memodifikasi tombol di inspect browser UI, middleware backend <code>requireRole('dosen', 'koordinator', 'kaprodi')</code> secara tegas menolak request dengan status HTTP <strong>403 Forbidden</strong>.
+          </div>
+        </div>
+      </div>
+
+      <!-- TC04 -->
+      <div class="test-card passed-negative">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="tc-badge negative">TC04 - NEGATIF (ANTI-IDOR)</span>
+            <span class="tc-title">Percobaan Mengakses Bimbingan Milik Mahasiswa Lain (IDOR)</span>
+          </div>
+          <span class="status-badge status-403">● 403 FORBIDDEN</span>
+        </div>
+        <div class="card-body">
+          <div class="meta-row">
+            <div class="meta-item">
+              <span class="meta-label">Aktor Penyerang</span>
+              <span class="meta-value">Mahasiswa B (714240001 - Nadi Azzada Akbar)</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Metode & Endpoint Sasaran</span>
+              <div class="api-endpoint-box">
+                <span class="method get">GET</span>
+                <span>/api/bimbingan/BIM-2024-0001 (Milik Mahasiswa A)</span>
+              </div>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Vulnerability Targeted</span>
+              <span class="meta-value" style="color: #f472b6;">Insecure Direct Object Reference (IDOR / Horizontal Escalation)</span>
+            </div>
+          </div>
+
+          <div class="code-grid">
+            <div class="code-block">
+              <div class="code-header">
+                <span>Request Call</span>
+                <span>Header: Authorization: Bearer &lt;Token Mahasiswa B&gt;</span>
+              </div>
+              <pre>GET /api/bimbingan/BIM-2024-0001 HTTP/1.1
+Host: api.kavana.my.id
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+User-Agent: SecurityTestRunner/1.0</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header">
+                <span>Response Body (HTTP 403)</span>
+                <span>Status: Data Isolation Blocked</span>
+              </div>
+              <pre>{
+  "message": "Anda tidak berhak mengakses bimbingan ini"
+}</pre>
+            </div>
+          </div>
+
+          <div class="verdict-banner verdict-security">
+            🛡️ <strong>Pertahanan Anti-IDOR Terbukti Efektif:</strong> Backend melakukan verifikasi relasi kepemilikan data (<i>Data Ownership Guard</i>: <code>mahasiswa_id === req.user.id</code>). Mahasiswa lain tidak dapat mengintip catatan revisi atau data bimbingan rekan lain.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      Laporan Pengujian Keamanan Hak Akses (RBAC & IDOR) • Sistem Manajemen Akademik Proyek & Magang Kavana Hub • 2026
+    </footer>
+  </div>
+</body>
+</html>

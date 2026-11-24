@@ -1,0 +1,62 @@
+{
+  "tc01": {
+    "name": "TC01 (Positif): Mahasiswa Mengajukan Bimbingan",
+    "method": "POST",
+    "endpoint": "/api/mahasiswa/bimbingan",
+    "actor": "Mahasiswa (714240042 - Bagas)",
+    "status": 201,
+    "request_body": {
+      "dosen_id": "2",
+      "tanggal": "2026-11-23",
+      "minggu_ke": 1,
+      "topik": "Konsultasi Perancangan Keamanan RBAC Kavana",
+      "catatan": "Membahas pembagian role permission matrix dan middleware guard."
+    },
+    "response": {
+      "message": "Bimbingan berhasil dibuat",
+      "id": "BIM-2024-0001",
+      "ids": [
+        "BIM-2024-0001"
+      ],
+      "enrollment_id": null
+    }
+  },
+  "tc02": {
+    "name": "TC02 (Positif): Dosen Menyetujui Bimbingan Mahasiswa",
+    "method": "PATCH",
+    "endpoint": "/api/dosen/bimbingan/BIM-2024-0001/status",
+    "actor": "Dosen Pembimbing (Awangga)",
+    "status": 200,
+    "request_body": {
+      "status": "approved",
+      "catatan": "Catatan disetujui. Struktur RBAC sudah sesuai spesifikasi PRD."
+    },
+    "response": {
+      "message": "Bimbingan approved"
+    }
+  },
+  "tc03": {
+    "name": "TC03 (Negatif): Mahasiswa Mencoba Menyetujui Bimbingan Sendiri (Bypass UI / Privilege Escalation)",
+    "method": "PATCH",
+    "endpoint": "/api/dosen/bimbingan/BIM-2024-0001/status",
+    "actor": "Mahasiswa (714240042 - Menggunakan Token Mahasiswa)",
+    "status": 403,
+    "request_body": {
+      "status": "approved"
+    },
+    "response": {
+      "message": "Forbidden"
+    }
+  },
+  "tc04": {
+    "name": "TC04 (Negatif): Mahasiswa B Mencoba Mengakses Data Bimbingan Mahasiswa A (IDOR Protection)",
+    "method": "GET",
+    "endpoint": "/api/bimbingan/BIM-2024-0001",
+    "actor": "Mahasiswa Lain (714240001 - Nadi Azzada)",
+    "status": 403,
+    "request_body": null,
+    "response": {
+      "message": "Anda tidak berhak mengakses bimbingan ini"
+    }
+  }
+}
